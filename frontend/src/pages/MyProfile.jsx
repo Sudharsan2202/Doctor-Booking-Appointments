@@ -8,6 +8,9 @@ const MyProfile = () => {
 
   const [isEdit, setIsEdit] = useState(false)
   const [image, setImage] = useState(false)
+  const [password, setPassword] = useState('')
+const [confirmPassword, setConfirmPassword] = useState('')
+
 
   const {
     token,
@@ -19,37 +22,49 @@ const MyProfile = () => {
 
   // 🔹 Update profile
   const updateUserProfileData = async () => {
-    try {
-      const formData = new FormData()
-
-      formData.append('name', userData.name || '')
-      formData.append('phone', userData.phone || '')
-      formData.append('address', JSON.stringify(userData.address || {}))
-      formData.append('gender', userData.gender || '')
-      formData.append('dob', userData.dob || '')
-
-      image && formData.append('image', image)
-
-      const { data } = await axios.post(
-        backendUrl + '/api/user/update-profile',
-        formData,
-        { headers: { token } }
-      )
-
-      if (data.success) {
-        toast.success(data.message)
-        await loadUserProfileData()
-        setIsEdit(false)
-        setImage(false)
-      } else {
-        toast.error(data.message)
-      }
-
-    } catch (error) {
-      console.log(error)
-      toast.error(error.message)
+  try {
+    if (password && password !== confirmPassword) {
+      return toast.error("Passwords do not match")
     }
+
+    const formData = new FormData()
+
+    formData.append('name', userData.name || '')
+    formData.append('email', userData.email || '') // ✅ added
+    formData.append('phone', userData.phone || '')
+    formData.append('address', JSON.stringify(userData.address || {}))
+    formData.append('gender', userData.gender || '')
+    formData.append('dob', userData.dob || '')
+
+    // 🔐 Send password only if user entered it
+    if (password) {
+      formData.append('password', password)
+    }
+
+    image && formData.append('image', image)
+
+    const { data } = await axios.post(
+      backendUrl + '/api/user/update-profile',
+      formData,
+      { headers: { token } }
+    )
+
+    if (data.success) {
+      toast.success(data.message)
+      await loadUserProfileData()
+      setIsEdit(false)
+      setImage(false)
+      setPassword('')
+      setConfirmPassword('')
+    } else {
+      toast.error(data.message)
+    }
+
+  } catch (error) {
+    console.log(error)
+    toast.error(error.message)
   }
+}
 
   return userData ? (
     <div className='max-w-lg flex flex-col gap-2 text-sm pt-5'>
@@ -107,7 +122,20 @@ const MyProfile = () => {
         <div className='grid grid-cols-[1fr_3fr] gap-y-2.5 mt-3 text-[#363636]'>
 
           <p className='font-medium'>Email id:</p>
-          <p className='text-blue-500'>{userData.email}</p>
+          
+{isEdit ? (
+  <input
+    className='bg-gray-50 max-w-60'
+    type="email"
+    value={userData.email || ''}
+    onChange={(e) =>
+      setUserData(prev => ({ ...prev, email: e.target.value }))
+    }
+  />
+) : (
+  <p className='text-blue-500'>{userData.email}</p>
+)}
+
 
           <p className='font-medium'>Phone:</p>
           {isEdit ? (
@@ -159,6 +187,31 @@ const MyProfile = () => {
           )}
         </div>
       </div>
+
+      {isEdit && (
+  <div className='mt-5'>
+    <p className='text-gray-600 underline'>SECURITY</p>
+
+    <div className='flex flex-col gap-2 mt-2 max-w-60'>
+      <input
+        type="password"
+        placeholder="New Password"
+        className='bg-gray-50'
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <input
+        type="password"
+        placeholder="Confirm Password"
+        className='bg-gray-50'
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+      />
+    </div>
+  </div>
+)}
+
 
       {/* BASIC INFORMATION */}
       <div>

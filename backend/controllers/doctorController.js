@@ -177,6 +177,8 @@ const doctorProfile = async (req, res) => {
 }
 
 // API to update doctor profile data from  Doctor Panel
+
+
 const updateDoctorProfile = async (req, res) => {
     try {
         const docId = req.user?.docId
@@ -188,16 +190,31 @@ const updateDoctorProfile = async (req, res) => {
             })
         }
 
-        const { fees, address, about, available } = req.body
+        const { name, fees, address, about, available, email, password } = req.body
+
+        const updateData = {
+            name,
+            fees,
+            address,
+            about,
+            available
+        }
+
+        // ✅ Update email if provided
+        if (email) {
+            updateData.email = email
+        }
+
+        // ✅ Update password if provided (hashed)
+        if (password) {
+            const salt = await bcrypt.genSalt(10)
+            const hashedPassword = await bcrypt.hash(password, salt)
+            updateData.password = hashedPassword
+        }
 
         const updatedDoctor = await doctorModel.findByIdAndUpdate(
             docId,
-            {
-                fees,
-                address,
-                about,
-                available
-            },
+            updateData,
             {
                 new: true,
                 runValidators: true
@@ -213,7 +230,7 @@ const updateDoctorProfile = async (req, res) => {
 
         res.json({
             success: true,
-            message: "Profile Updated"
+            message: "Profile Updated Successfully"
         })
 
     } catch (error) {
