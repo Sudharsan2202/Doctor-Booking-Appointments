@@ -108,6 +108,27 @@ const AdminContextProvider = (props) => {
 
     }
 
+    const removeDoctor = async (doctorId) => {
+  try {
+    const { data } = await axios.post(
+      backendUrl + '/api/admin/remove-doctor',
+      { doctorId },
+      { headers: { aToken } }
+    )
+
+    if (data.success) {
+      toast.success(data.message)
+      getAllDoctors()
+    } else {
+      toast.error(data.message)
+    }
+
+  } catch (error) {
+    toast.error(error.message)
+  }
+}
+
+
 
 
   const value = {
@@ -122,7 +143,8 @@ const AdminContextProvider = (props) => {
     getAllAppointments,
     cancelAppointment,
     dashData,
-    getDashData
+    getDashData,
+    removeDoctor
   };
 
   return (

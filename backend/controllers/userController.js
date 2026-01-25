@@ -72,8 +72,8 @@ const loginUser = async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      process.env.JWT_SECRET
+      
     )
 
     res.json({
@@ -81,10 +81,6 @@ const loginUser = async (req, res) => {
       token,
       user
     })
-    console.log("EMAIL 👉", email)
-console.log("PASSWORD 👉", password)
-console.log("HASH 👉", user?.password)
-console.log("COMPARE 👉", await bcrypt.compare(password, user.password))
 
 
   } catch (error) {

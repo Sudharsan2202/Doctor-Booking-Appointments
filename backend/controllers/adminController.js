@@ -152,6 +152,30 @@ const adminDashboard = async (req, res) => {
     }
 }
 
+// remov Doctor by admin
+
+ const removeDoctor = async (req, res) => {
+  try {
+    const { doctorId } = req.body
+
+    if (!doctorId) {
+      return res.json({ success: false, message: "Doctor ID required" })
+    }
+
+    await doctorModel.findByIdAndDelete(doctorId)
+
+    res.json({
+      success: true,
+      message: "Doctor removed successfully"
+    })
+
+  } catch (error) {
+    console.log(error)
+    res.json({ success: false, message: error.message })
+  }
+}
+
+
 
  export {
     addDoctor,
@@ -159,5 +183,6 @@ const adminDashboard = async (req, res) => {
     allDoctors,
     appointmentsAdmin,
     appointmentCancel,
-    adminDashboard
+    adminDashboard,
+    removeDoctor
 }
